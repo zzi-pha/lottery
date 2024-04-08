@@ -1,0 +1,63 @@
+<html>
+<head>
+  <title>로또생성기</title>
+  <script type="text/javascript">
+    window.addEventListener('DOMContentLoaded', function() {
+      var loop; //loop counter
+      var random; //holds random numbers
+      const body = document.querySelector('body');
+      const btn = document.querySelector('#generateButton');
+      const resultDiv = document.querySelector('#resultDiv');
+      const colors = ['palegreen', 'aliceblue', 'lemonchiffon', 'Lavender', 'Lavenderblush', 'honeydew', 'oldlace', 'thistle', 'seashell', 'azure', 'lightpink', 'mistyrose', 'whitesmoke', 'lightsteelblue'];
+
+      btn.addEventListener('click', function() {
+        colorChange();
+        gene();
+      });
+
+      function colorChange() {
+        const colorIdx = Math.floor(Math.random() * colors.length);
+        body.style.backgroundColor = colors[colorIdx];
+      }
+
+      function gene() {
+        const maxNumber = 42;
+        const ballsDrawn = 6;
+        const hold = new Array(maxNumber + 1).fill(0); // Initialize the array with zeros
+        let numbersArr = []; // Use an array to store the numbers
+
+        // Generate unique random numbers
+        for (loop = 0; loop < ballsDrawn; loop++) {
+          do {
+            random = Math.floor(Math.random() * maxNumber) + 1;
+          } while (hold[random] === 1); // Repeat if the number is already generated
+          hold[random] = 1;
+          numbersArr.push(random);
+        }
+
+        // Sort the numbers in ascending order
+        numbersArr.sort((a, b) => a - b);
+
+        // Update the numbers input field
+        document.lottery.numbers.value = numbersArr.join(" ");
+
+        // Create a new list item and append it to the result div
+        const newLi = document.createElement('li');
+        newLi.textContent = numbersArr.join(", ");
+        resultDiv.appendChild(newLi);
+      }
+    });
+  </script>
+</head>
+<body>
+  <h1 style="text-align: center; font-size: 100px;">로또번호 생성기</h1>
+  <form name="lottery" style="text-align: center;">
+    당첨 번호:<br><br>
+    <input type="text" name="numbers" size=12 maxlength=50 value="" style="font-size: 88px;"><br><br>
+    <input type="button" id="generateButton" value="당첨번호 내놔" style="padding: 100px;">
+  </form>
+  <div id="resultDiv" style="text-align: center; font-size: 36px;">
+    <ul></ul>
+  </div>
+</body>
+</html>
