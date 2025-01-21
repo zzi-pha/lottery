@@ -2,32 +2,64 @@
 <head>
   <title>로또생성기</title>
   <style>
+    /* 기본 스타일 */
     body {
       text-align: center;
+      font-family: Arial, sans-serif;
     }
     h1 {
-      font-size: 8vw; /* 화면 크기에 따라 동적으로 조정 */
+      font-size: 5vw;
     }
     input[type="text"] {
-      font-size: 6vw; /* 화면 크기에 따라 텍스트 크기 조정 */
+      font-size: 2vw;
       padding: 10px;
-      width: 80%;
+      width: 50%; /* 기본 크기 */
+      max-width: 500px; 
     }
     input[type="button"] {
-      font-size: 6vw; /* 버튼 텍스트 크기 */
+      font-size: 2vw;
       padding: 15px 30px;
       margin-top: 20px;
-      width: 80%; /* 버튼 너비를 화면 크기에 맞게 설정 */
-      max-width: 600px; /* 너무 넓어지지 않도록 제한 */
+      width: 50%;
+      max-width: 500px;
     }
     #resultDiv {
-      font-size: 4vw; /* 결과 글씨 크기 */
+      font-size: 1.5vw;
+      margin-top: 20px;
+    }
+
+    /* 모바일 화면용 */
+    @media screen and (max-width: 768px) {
+      h1 {
+        font-size: 8vw; /* 모바일에서 크게 보이도록 */
+      }
+      input[type="text"], input[type="button"] {
+        font-size: 5vw;
+        width: 80%;
+      }
+      #resultDiv {
+        font-size: 4vw;
+      }
+    }
+
+    /* 아주 큰 화면용 */
+    @media screen and (min-width: 1920px) {
+      h1 {
+        font-size: 3vw;
+      }
+      input[type="text"], input[type="button"] {
+        font-size: 1.5vw;
+        width: 40%;
+      }
+      #resultDiv {
+        font-size: 1vw;
+      }
     }
   </style>
   <script type="text/javascript">
     window.addEventListener('DOMContentLoaded', function() {
-      var loop; //loop counter
-      var random; //holds random numbers
+      var loop;
+      var random;
       const body = document.querySelector('body');
       const btn = document.querySelector('#generateButton');
       const resultDiv = document.querySelector('#resultDiv');
@@ -46,25 +78,21 @@
       function gene() {
         const maxNumber = 42;
         const ballsDrawn = 6;
-        const hold = new Array(maxNumber + 1).fill(0); // Initialize the array with zeros
-        let numbersArr = []; // Use an array to store the numbers
+        const hold = new Array(maxNumber + 1).fill(0);
+        let numbersArr = [];
 
-        // Generate unique random numbers
         for (loop = 0; loop < ballsDrawn; loop++) {
           do {
             random = Math.floor(Math.random() * maxNumber) + 1;
-          } while (hold[random] === 1); // Repeat if the number is already generated
+          } while (hold[random] === 1);
           hold[random] = 1;
           numbersArr.push(random);
         }
 
-        // Sort the numbers in ascending order
         numbersArr.sort((a, b) => a - b);
 
-        // Update the numbers input field
         document.lottery.numbers.value = numbersArr.join(" ");
 
-        // Create a new list item and append it to the result div
         const newLi = document.createElement('li');
         newLi.textContent = numbersArr.join(", ");
         resultDiv.appendChild(newLi);
@@ -84,3 +112,4 @@
   </div>
 </body>
 </html>
+
