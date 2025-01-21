@@ -1,6 +1,29 @@
 <html>
 <head>
   <title>로또생성기</title>
+  <style>
+    body {
+      text-align: center;
+    }
+    h1 {
+      font-size: 8vw; /* 화면 크기에 따라 동적으로 조정 */
+    }
+    input[type="text"] {
+      font-size: 6vw; /* 화면 크기에 따라 텍스트 크기 조정 */
+      padding: 10px;
+      width: 80%;
+    }
+    input[type="button"] {
+      font-size: 6vw; /* 버튼 텍스트 크기 */
+      padding: 15px 30px;
+      margin-top: 20px;
+      width: 80%; /* 버튼 너비를 화면 크기에 맞게 설정 */
+      max-width: 600px; /* 너무 넓어지지 않도록 제한 */
+    }
+    #resultDiv {
+      font-size: 4vw; /* 결과 글씨 크기 */
+    }
+  </style>
   <script type="text/javascript">
     window.addEventListener('DOMContentLoaded', function() {
       var loop; //loop counter
@@ -50,13 +73,13 @@
   </script>
 </head>
 <body>
-  <h1 style="text-align: center; font-size: 100px;">로또번호 생성기</h1>
-  <form name="lottery" style="text-align: center;">
+  <h1>로또번호 생성기</h1>
+  <form name="lottery">
     당첨 번호:<br><br>
-    <input type="text" name="numbers" size=12 maxlength=50 value="" style="font-size: 88px;"><br><br>
-    <input type="button" id="generateButton" value="당첨번호 내놔" style="padding: 100px;">
+    <input type="text" name="numbers" size=12 maxlength=50 value=""><br><br>
+    <input type="button" id="generateButton" value="당첨번호 내놔">
   </form>
-  <div id="resultDiv" style="text-align: center; font-size: 36px;">
+  <div id="resultDiv">
     <ul></ul>
   </div>
 </body>
