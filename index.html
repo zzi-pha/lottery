@@ -126,7 +126,18 @@
       const resultList = document.querySelector('#resultDiv ul');
       const statusMessage = document.querySelector('#statusMessage');
       const errorMessage = document.querySelector('#errorMessage');
-      const colors = ['palegreen', 'aliceblue', 'lemonchiffon', 'Lavender', 'Lavenderblush', 'honeydew', 'oldlace', 'thistle', 'seashell', 'azure', 'lightpink', 'mistyrose', 'whitesmoke', 'lightsteelblue'];
+      let previousHue = null;
+
+      function nextPastelColor() {
+        // 직전 색과 색상환에서 최소 75도 차이를 두어 클릭을 바로 알아볼 수 있게 합니다.
+        const hue = previousHue === null
+          ? randomInt(360)
+          : (previousHue + 75 + randomInt(211)) % 360;
+        const saturation = 65 + randomInt(21);
+        const lightness = 84 + randomInt(7);
+        previousHue = hue;
+        return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+      }
 
       function showError() {
         errorMessage.hidden = false;
@@ -164,7 +175,7 @@
           }
 
           const sortedNumbers = Array.from(numbers).sort((a, b) => a - b);
-          const backgroundColor = colors[randomInt(colors.length)];
+          const backgroundColor = nextPastelColor();
           const result = sortedNumbers.join(' ');
           const newLi = document.createElement('li');
           newLi.textContent = result;
