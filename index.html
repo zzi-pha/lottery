@@ -1,144 +1,200 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-  <title>로또생성기</title>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="1부터 42까지 중복 없는 번호 6개를 무작위로 생성합니다.">
+  <title>로또생성기</title>
   <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
     body {
+      margin: 0;
+      padding: 32px 16px;
       text-align: center;
-      font-family: Arial, sans-serif;
+      font-family: Arial, "Malgun Gothic", sans-serif;
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #202020;
+      background-color: #fff;
     }
-  
-    h1 {
-      font-size: 5vw;
-    }
-  
-    input[type="text"] {
-      font-size: 3vw;
-      padding: 10px;
-      width: 50%;
-      max-width: 500px; 
-    }
-  
-    input[type="button"] {
-      font-size: 3vw;
-      padding: 15px 30px;
-      margin-top: 20px;
-      width: 50%;
+
+    main {
+      width: 100%;
       max-width: 500px;
+      margin: 0 auto;
     }
-  
-    #resultDiv {
+
+    h1 {
+      margin: 0 0 24px;
+      font-size: clamp(1.75rem, 1.25rem + 2vw, 2.5rem);
+      overflow-wrap: anywhere;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    output, button {
+      width: 100%;
+      min-width: 0;
+      min-height: 48px;
+      padding: 12px;
+      border: 1px solid #666;
+      border-radius: 6px;
+      font: inherit;
+      font-size: clamp(1rem, 0.875rem + 1vw, 1.5rem);
+      color: inherit;
+      background-color: #fff;
+    }
+
+    output {
+      display: block;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+
+    button {
       margin-top: 20px;
-      display: flex;
-      justify-content: center;
+      background-color: #f2f2f2;
+      cursor: pointer;
+      overflow-wrap: anywhere;
     }
-  
+
+    button:disabled {
+      cursor: not-allowed;
+    }
+
+    output:focus-visible, button:focus-visible {
+      outline: 3px solid #174ea6;
+      outline-offset: 3px;
+    }
+
+    #resultDiv {
+      margin-top: 32px;
+    }
+
+    h2 {
+      font-size: 1.125rem;
+    }
+
     #resultDiv ul {
       padding: 0;
       margin: 0;
       list-style: none;
-      font-size: 1.5vw;
-      display: inline-block;
-      text-align: left;
+      font-size: clamp(1rem, 0.875rem + 1vw, 1.25rem);
+      font-variant-numeric: tabular-nums;
     }
-  
+
     #resultDiv li {
       margin: 10px 0;
-      font-size: inherit;
+      overflow-wrap: anywhere;
     }
 
     #resultDiv li::before {
       content: "• ";
-      padding-right: 10px;
     }
-  
-    /* 모바일 화면용 */
-    @media screen and (max-width: 768px) {
-      h1 {
-        font-size: 10vw;
-      }
-  
-      input[type="text"], input[type="button"] {
-        font-size: 6vw;
-        width: 80%;
-      }
-  
-      #resultDiv ul {
-        font-size: 5vw;
-      }
+
+    #errorMessage {
+      color: #8b0000;
+      overflow-wrap: anywhere;
     }
-  
-    /* 아주 큰 화면용 */
-    @media screen and (min-width: 1920px) {
-      h1 {
-        font-size: 3vw;
-      }
-  
-      input[type="text"], input[type="button"] {
-        font-size: 1.5vw;
-        width: 40%;
-      }
-  
-      #resultDiv ul {
-        font-size: 1vw;
-      }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
     }
   </style>
-  <script type="text/javascript">
+  <script>
+    'use strict';
+
     window.addEventListener('DOMContentLoaded', function() {
-      var loop;
-      var random;
-      const body = document.querySelector('body');
+      const form = document.querySelector('#lotteryForm');
       const btn = document.querySelector('#generateButton');
+      const numbersOutput = document.querySelector('#numbers');
       const resultList = document.querySelector('#resultDiv ul');
+      const statusMessage = document.querySelector('#statusMessage');
+      const errorMessage = document.querySelector('#errorMessage');
       const colors = ['palegreen', 'aliceblue', 'lemonchiffon', 'Lavender', 'Lavenderblush', 'honeydew', 'oldlace', 'thistle', 'seashell', 'azure', 'lightpink', 'mistyrose', 'whitesmoke', 'lightsteelblue'];
 
-      btn.addEventListener('click', function() {
-        colorChange();
-        gene();
-      });
-
-      function colorChange() {
-        const colorIdx = Math.floor(Math.random() * colors.length);
-        body.style.backgroundColor = colors[colorIdx];
+      function showError() {
+        errorMessage.hidden = false;
+        errorMessage.textContent = '안전한 난수를 생성할 수 없습니다. 최신 브라우저에서 페이지를 다시 열어 주세요.';
+        btn.disabled = true;
       }
 
-      function gene() {
-        const maxNumber = 42;
-        const ballsDrawn = 6;
-        const hold = new Array(maxNumber + 1).fill(0);
-        let numbersArr = [];
+      if (!globalThis.crypto || typeof globalThis.crypto.getRandomValues !== 'function') {
+        showError();
+        return;
+      }
 
-        for (loop = 0; loop < ballsDrawn; loop++) {
-          do {
-            random = Math.floor(Math.random() * maxNumber) + 1;
-          } while (hold[random] === 1);
-          hold[random] = 1;
-          numbersArr.push(random);
+      // 0 이상 maxExclusive 미만의 정수를 편향 없이 추출합니다.
+      function randomInt(maxExclusive) {
+        const range = 2 ** 32;
+        const limit = range - (range % maxExclusive);
+        const buffer = new Uint32Array(1);
+        do {
+          globalThis.crypto.getRandomValues(buffer);
+          // 범위의 크기를 maxExclusive의 배수로 맞춰 나머지 연산의 편향을 피합니다.
+        } while (buffer[0] >= limit);
+        return buffer[0] % maxExclusive;
+      }
+
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        try {
+          const maxNumber = 42;
+          const ballsDrawn = 6;
+          const numbers = new Set();
+
+          while (numbers.size < ballsDrawn) {
+            numbers.add(randomInt(maxNumber) + 1);
+          }
+
+          const sortedNumbers = Array.from(numbers).sort((a, b) => a - b);
+          const backgroundColor = colors[randomInt(colors.length)];
+          const result = sortedNumbers.join(' ');
+          const newLi = document.createElement('li');
+          newLi.textContent = result;
+
+          numbersOutput.value = result;
+          resultList.appendChild(newLi);
+          statusMessage.textContent = `${resultList.children.length}번째 생성 번호: ${result}`;
+          document.body.style.backgroundColor = backgroundColor;
+        } catch {
+          showError();
         }
-
-        numbersArr.sort((a, b) => a - b);
-
-        document.lottery.numbers.value = numbersArr.join(" ");
-
-        const newLi = document.createElement('li');
-        newLi.textContent = numbersArr.join("  ");
-        resultList.appendChild(newLi);
-      }
+      });
     });
   </script>
 </head>
 <body>
-  <h1>로또번호 생성기</h1>
-  <form name="lottery">
-    당첨 번호:<br><br>
-    <input type="text" name="numbers" size=12 maxlength=50 value=""><br><br>
-    <input type="button" id="generateButton" value="당첨번호 내놔">
-  </form>
-  <div id="resultDiv">
-    <ul></ul>
-  </div>
+  <main>
+    <h1>로또번호 생성기</h1>
+    <form id="lotteryForm" name="lottery">
+      <label for="numbers">당첨 번호:</label>
+      <output id="numbers" name="numbers" tabindex="0" aria-live="off"></output>
+      <button type="submit" id="generateButton">당첨번호 내놔</button>
+    </form>
+    <p id="statusMessage" class="visually-hidden" role="status" aria-atomic="true"></p>
+    <p id="errorMessage" role="alert" hidden></p>
+    <section id="resultDiv" aria-labelledby="historyHeading">
+      <h2 id="historyHeading">생성 기록</h2>
+      <ul></ul>
+    </section>
+    <noscript>번호를 생성하려면 브라우저에서 JavaScript를 활성화해 주세요.</noscript>
+  </main>
 </body>
 </html>
-
